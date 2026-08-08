@@ -20,11 +20,11 @@ api.interceptors.request.use((config) => {
 });
 
 export const authApi = {
-  register: async (name: string, email: string, password: str): Promise<User> => {
+  register: async (name: string, email: string, password: string): Promise<User> => {
     const res = await api.post<User>('/auth/register', { name, email, password });
     return res.data;
   },
-  login: async (email: string, password: str): Promise<{ access_token: string }> => {
+  login: async (email: string, password: string): Promise<{ access_token: string }> => {
     const formData = new FormData();
     formData.append('username', email);
     formData.append('password', password);
