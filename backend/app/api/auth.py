@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash
 from app.models.user import User
-from app.schemas.auth import UserCreate, UserResponse, Token
+from app.schemas.auth import UserRegister, UserResponse, Token
 from app.core.exceptions import BadRequestException, UnauthorizedException
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -23,7 +23,7 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"exp": expire, "sub": str(subject)}
-    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 async def get_current_user(
     token: Optional[str] = Depends(oauth2_scheme),
@@ -34,7 +34,7 @@ async def get_current_user(
     """
     if token:
         try:
-            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
             email: str = payload.get("sub")
             if email:
                 res = await db.execute(select(User).where(User.email == email))
@@ -61,7 +61,7 @@ async def get_current_user(
     return demo_user
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == user_in.email))
     if result.scalars().first():
         raise BadRequestException("User with this email already exists")
