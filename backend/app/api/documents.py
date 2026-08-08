@@ -69,6 +69,9 @@ async def upload_document(
     if ext not in ["pdf", "docx", "pptx", "txt", "md"]:
         raise BadRequestException(f"Unsupported file format: .{ext}. Supported: PDF, DOCX, PPTX, TXT, MD.")
 
+    # Ensure uploads directory exists
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
 

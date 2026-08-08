@@ -42,7 +42,8 @@ export const documentApi = {
     const formData = new FormData();
     formData.append('file', file);
     const res = await api.post<Document>('/documents/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000
     });
     return res.data;
   },
